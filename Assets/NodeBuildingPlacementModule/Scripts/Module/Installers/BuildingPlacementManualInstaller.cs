@@ -5,7 +5,7 @@ namespace NodeBuildingPlacementModule
     public class BuildingPlacementManualInstaller : MonoBehaviour
     {
         [SerializeField] private BuildingDatabase _buildingDatabase;
-        [SerializeField] private BuildingPlacementView _viewPrefab;
+        [SerializeField] private BuildingPlacementView _view;
 
         private IBuildingPlacementController _controller;
 
@@ -13,7 +13,7 @@ namespace NodeBuildingPlacementModule
         {
             // Create instances
             var model = new BuildingPlacementModel();
-            var view = Instantiate(_viewPrefab);
+            var view = _view;
 
             // Manual injection for view
             if (view.GetComponent<BuildingPlacementView>() is BuildingPlacementView viewComponent)

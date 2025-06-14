@@ -44,6 +44,7 @@ namespace NodeBuildingPlacementModule
             _model.OnBuildingUpgraded -= HandleBuildingUpgraded;
             _model.OnBuildingDestroyed -= HandleBuildingDestroyed;
         }
+
         private void HandleTileClicked(Vector2 position)
         {
             var existingBuilding = _model.GetBuilding(position);
@@ -112,6 +113,7 @@ namespace NodeBuildingPlacementModule
 
         private List<BuildingType> GetAvailableBuildingTypes()
         {
+            // Here you can add logic to filter available types based on player resources, level, etc.
             return new List<BuildingType>
         {
             BuildingType.BasicTower,

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 namespace NodeBuildingPlacementModule
 {
@@ -21,6 +23,10 @@ namespace NodeBuildingPlacementModule
         [SerializeField] private Material _validPlacementMaterial;
         [SerializeField] private Material _invalidPlacementMaterial;
 
+        [Header("Input")]
+        [SerializeField] private InputActionReference _clickAction;
+        [SerializeField] private InputActionReference _pointerPositionAction;
+
         public event Action<Vector2> OnTileClicked;
         public event Action<BuildingType> OnBuildingTypeSelected;
         public event Action OnUpgradeButtonClicked;
@@ -29,7 +35,11 @@ namespace NodeBuildingPlacementModule
         private BuildingDatabase _buildingDatabase;
         private Vector2 _currentSelectedTile;
         private GameObject _currentHighlight;
-        private Dictionary<Vector2, GameObject> _buildingVisuals = new();
+        private readonly Dictionary<Vector2, GameObject> _buildingVisuals = new();
+
+        private PlayerInput _playerInput;
+        private InputAction _clickInputAction;
+        private InputAction _pointerPositionInputAction;
 
         public void Initialize(BuildingDatabase buildingDatabase)
         {
@@ -42,26 +52,71 @@ namespace NodeBuildingPlacementModule
             if (_upgradeButton != null)
             {
                 _upgradeButton.GetComponent<UnityEngine.UI.Button>()?.onClick
-                              .AddListener(() => OnUpgradeButtonClicked?.Invoke());
+                    .AddListener(() => OnUpgradeButtonClicked?.Invoke());
             }
+
+            SetupInputActions();
         }
 
-        private void Update()
+        private void OnEnable()
         {
-            HandleInput();
+            EnableInputActions();
         }
 
-        private void HandleInput()
+        private void OnDisable()
         {
-            if (Input.GetMouseButtonDown(0))
+            DisableInputActions();
+        }
+
+        private void SetupInputActions()
+        {
+            if (_clickAction != null && _pointerPositionAction != null)
             {
-                Vector2 worldPos = _camera.ScreenToWorldPoint(Input.mousePosition);
-                Vector2 gridPos = WorldToGridPosition(worldPos);
+                _clickInputAction = _clickAction.action;
+                _pointerPositionInputAction = _pointerPositionAction.action;
+            }
+            else
+            {
+                _clickInputAction = new InputAction("Click", InputActionType.Button);
+                _clickInputAction.AddBinding("<Mouse>/leftButton");
+                _clickInputAction.AddBinding("<Touchscreen>/primaryTouch/tap");
 
-                if (IsValidGridPosition(gridPos))
-                {
-                    OnTileClicked?.Invoke(gridPos);
-                }
+                _pointerPositionInputAction = new InputAction("PointerPosition", InputActionType.Value);
+                _pointerPositionInputAction.AddBinding("<Mouse>/position");
+                _pointerPositionInputAction.AddBinding("<Touchscreen>/primaryTouch/position");
+            }
+
+            _clickInputAction.performed += OnClickPerformed;
+        }
+
+        private void EnableInputActions()
+        {
+            _clickInputAction?.Enable();
+            _pointerPositionInputAction?.Enable();
+        }
+
+        private void DisableInputActions()
+        {
+            _clickInputAction?.Disable();
+            _pointerPositionInputAction?.Disable();
+        }
+
+        private void OnClickPerformed(InputAction.CallbackContext context)
+        {
+            Vector2 screenPosition = _pointerPositionInputAction.ReadValue<Vector2>();
+
+            if (EventSystem.current.IsPointerOverGameObject()) return;
+
+            Vector2 worldPos = _camera.ScreenToWorldPoint(screenPosition);
+            Vector2 gridPos = WorldToGridPosition(worldPos);
+
+            if (IsValidGridPosition(gridPos))
+            {
+                OnTileClicked?.Invoke(gridPos);
+            }
+            else
+            {
+                HideBuildingSelection();
             }
         }
 
@@ -149,7 +204,6 @@ namespace NodeBuildingPlacementModule
 
         public void UpdateBuildingVisual(BuildingData building)
         {
-            // Update visual representation after upgrade
             if (building.visual != null)
             {
                 // Example: change scale or material to show upgrade
@@ -214,6 +268,32 @@ namespace NodeBuildingPlacementModule
             {
                 Destroy(_currentHighlight);
                 _currentHighlight = null;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_clickInputAction != null)
+            {
+                _clickInputAction.performed -= OnClickPerformed;
+            }
+
+            if (_clickAction == null)
+            {
+                _clickInputAction?.Dispose();
+                _pointerPositionInputAction?.Dispose();
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.gray;
+            for (float x = -10; x <= 10; x += _gridSize)
+            {
+                for (float y = -10; y <= 10; y += _gridSize)
+                {
+                    Gizmos.DrawWireCube(new Vector3(x, y, 0), new Vector3(_gridSize, _gridSize, 0));
+                }
             }
         }
     }
