@@ -25,6 +25,8 @@ namespace NodeBuildingPlacementModule
 
             _controller = controller;
             _controller.Initialize();
+
+            GameManager.Instance.Initialize(model);
         }
 
         private void OnDestroy()

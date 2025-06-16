@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace NodeBuildingPlacementModule
 {
@@ -51,7 +52,7 @@ namespace NodeBuildingPlacementModule
             _camera = Camera.main;
             if (_upgradeButton != null)
             {
-                _upgradeButton.GetComponent<UnityEngine.UI.Button>()?.onClick
+                _upgradeButton.GetComponent<Button>()?.onClick
                     .AddListener(() => OnUpgradeButtonClicked?.Invoke());
             }
 

@@ -6,7 +6,6 @@ namespace NodeBuildingPlacementModule
 {
     public interface IBuildingPlacementModel
     {
-        event Action<Vector2> OnTileClicked;
         event Action<BuildingData> OnBuildingPlaced;
         event Action<BuildingData> OnBuildingUpgraded;
         event Action<BuildingData> OnBuildingDestroyed;

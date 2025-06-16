@@ -1,33 +1,52 @@
+using NodeBuildingPlacementModule;
 using UnityEngine;
 
-namespace NodeBuildingPlacementModule
+public class GameManager : MonoBehaviour
 {
-    public class GameManager : MonoBehaviour
+    [SerializeField] private BuildingDatabase buildingDatabase;
+
+    private static GameManager instance;
+
+    public static GameManager Instance
     {
-        [SerializeField] private BuildingDatabase buildingDatabase;
-
-        private BuildingPlacementModel buildingModel;
-        private void Start()
+        get
         {
-            // Блокируем некоторые тайлы (пример)
-            buildingModel?.AddBlockedTile(new Vector2(0, 0));
-            buildingModel?.AddBlockedTile(new Vector2(1, 0));
-
-            // Подписываемся на события
-            if (buildingModel != null)
+            if (instance == null)
             {
-                buildingModel.OnBuildingPlaced += OnBuildingPlaced;
-                buildingModel.OnBuildingUpgraded += OnBuildingUpgraded;
+                GameObject singleton = new(typeof(GameManager).Name);
+                instance = singleton.AddComponent<GameManager>();
             }
+            return instance;
         }
-        private void OnBuildingPlaced(BuildingData building)
-        {
-            Debug.Log($"Башня {building.type} размещена в {building.position}");
-        }
+    }
 
-        private void OnBuildingUpgraded(BuildingData building)
+    private void Awake()
+    {
+        if (instance != null && instance != this)
         {
-            Debug.Log($"Башня улучшена до уровня {building.level}");
+            Destroy(gameObject);
+            return;
         }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    public void Initialize(BuildingPlacementModel buildingModel)
+    {
+        if (buildingModel != null)
+        {
+            buildingModel.OnBuildingPlaced += OnBuildingPlaced;
+            buildingModel.OnBuildingUpgraded += OnBuildingUpgraded;
+        }
+    }
+
+    private void OnBuildingPlaced(BuildingData building)
+    {
+        Debug.Log($"Tower {building.type} placed at {building.position}");
+    }
+
+    private void OnBuildingUpgraded(BuildingData building)
+    {
+        Debug.Log($"Tower upgraded to level {building.level}");
     }
 }
