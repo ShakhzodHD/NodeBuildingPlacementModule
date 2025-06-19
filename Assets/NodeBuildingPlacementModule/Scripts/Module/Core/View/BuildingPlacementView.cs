@@ -14,6 +14,7 @@ namespace NodeBuildingPlacementModule
         [SerializeField] private Transform _buildingButtonsParent;
         [SerializeField] private GameObject _buildingButtonPrefab;
         [SerializeField] private GameObject _upgradeButton;
+        [SerializeField] private GameObject _deleteButton;
 
         [Header("Grid Settings")]
         [SerializeField] private float _gridSize = 1f;
@@ -31,6 +32,7 @@ namespace NodeBuildingPlacementModule
         public event Action<Vector2> OnTileClicked;
         public event Action<BuildingType> OnBuildingTypeSelected;
         public event Action OnUpgradeButtonClicked;
+        public event Action OnDeleteButtonClicked;
 
         private Camera _camera;
         private BuildingDatabase _buildingDatabase;
@@ -54,6 +56,12 @@ namespace NodeBuildingPlacementModule
             {
                 _upgradeButton.GetComponent<Button>()?.onClick
                     .AddListener(() => OnUpgradeButtonClicked?.Invoke());
+            }
+
+            if (_deleteButton != null)
+            {
+                _deleteButton.GetComponent<Button>()?.onClick
+                    .AddListener(() => OnDeleteButtonClicked?.Invoke());
             }
 
             SetupInputActions();
@@ -118,6 +126,8 @@ namespace NodeBuildingPlacementModule
             else
             {
                 HideBuildingSelection();
+                HideUpgradeButton();
+                HideDeleteButton();
             }
         }
 
@@ -167,7 +177,7 @@ namespace NodeBuildingPlacementModule
             if (_upgradeButton != null)
             {
                 _upgradeButton.SetActive(true);
-                _upgradeButton.transform.position = _camera.WorldToScreenPoint(position + Vector2.up * 0.5f);
+                _upgradeButton.transform.position = _camera.WorldToScreenPoint(position + Vector2.up * 1f);
             }
 
             ShowTileHighlight(position, true);
@@ -179,6 +189,22 @@ namespace NodeBuildingPlacementModule
                 _upgradeButton.SetActive(false);
 
             HideTileHighlight();
+            HideDeleteButton();
+        }
+
+        public void ShowDeleteButton(Vector2 position, BuildingData building)
+        {
+            if (_deleteButton != null)
+            {
+                _deleteButton.SetActive(true);
+                _deleteButton.transform.position = _camera.WorldToScreenPoint(position + Vector2.down * 1f);
+            }
+        }
+
+        public void HideDeleteButton()
+        {
+            if (_deleteButton != null)
+                _deleteButton.SetActive(false);
         }
 
         public void CreateBuildingVisual(BuildingData building)

@@ -15,6 +15,7 @@ namespace NodeBuildingPlacementModule
         public int cost;
         public int upgradeCost;
         public GameObject visual;
+        /// Additional properties can be added as needed
 
         public BuildingData(BuildingType type, Vector2 position)
         {

@@ -28,6 +28,7 @@ namespace NodeBuildingPlacementModule
             _view.OnTileClicked += HandleTileClicked;
             _view.OnBuildingTypeSelected += HandleBuildingTypeSelected;
             _view.OnUpgradeButtonClicked += HandleUpgradeButtonClicked;
+            _view.OnDeleteButtonClicked += HandleDeleteButtonClicked;
 
             _model.OnBuildingPlaced += HandleBuildingPlaced;
             _model.OnBuildingUpgraded += HandleBuildingUpgraded;
@@ -39,6 +40,7 @@ namespace NodeBuildingPlacementModule
             _view.OnTileClicked -= HandleTileClicked;
             _view.OnBuildingTypeSelected -= HandleBuildingTypeSelected;
             _view.OnUpgradeButtonClicked -= HandleUpgradeButtonClicked;
+            _view.OnDeleteButtonClicked -= HandleDeleteButtonClicked;
 
             _model.OnBuildingPlaced -= HandleBuildingPlaced;
             _model.OnBuildingUpgraded -= HandleBuildingUpgraded;
@@ -53,12 +55,14 @@ namespace NodeBuildingPlacementModule
             {
                 _view.HideBuildingSelection();
                 _view.ShowUpgradeButton(position, existingBuilding);
+                _view.ShowDeleteButton(position, existingBuilding);
                 _currentSelectedTile = position;
                 _isSelectionMode = false;
             }
             else
             {
                 _view.HideUpgradeButton();
+                _view.HideDeleteButton();
                 var availableTypes = GetAvailableBuildingTypes();
                 _view.ShowBuildingSelection(position, availableTypes);
                 _currentSelectedTile = position;
@@ -92,6 +96,21 @@ namespace NodeBuildingPlacementModule
             if (_model.UpgradeBuilding(position))
             {
                 _view.HideUpgradeButton();
+                _currentSelectedTile = null;
+            }
+        }
+
+        private void HandleDeleteButtonClicked()
+        {
+            if (!_currentSelectedTile.HasValue)
+                return;
+
+            var position = _currentSelectedTile.Value;
+
+            if (_model.DestroyBuilding(position))
+            {
+                _view.HideUpgradeButton();
+                _view.HideDeleteButton();
                 _currentSelectedTile = null;
             }
         }

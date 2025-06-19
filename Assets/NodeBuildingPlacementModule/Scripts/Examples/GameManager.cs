@@ -1,7 +1,7 @@
 using NodeBuildingPlacementModule;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour // example of a singleton GameManager
 {
     [SerializeField] private BuildingDatabase buildingDatabase;
 
