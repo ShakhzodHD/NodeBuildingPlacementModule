@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace NodeBuildingPlacementModule
 {
-    [CreateAssetMenu(fileName = "BuildingDatabase", menuName = "LG/Building Database")]
+    [CreateAssetMenu(fileName = "BuildingDatabase", menuName = "Building Database")]
     public class BuildingDatabase : ScriptableObject
     {
         [SerializeField] private BuildingConfig[] buildings;

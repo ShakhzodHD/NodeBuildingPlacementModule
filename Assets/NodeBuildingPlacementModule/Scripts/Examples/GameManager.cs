@@ -1,52 +1,54 @@
-using NodeBuildingPlacementModule;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour // example of a singleton GameManager
+namespace NodeBuildingPlacementModule
 {
-    [SerializeField] private BuildingDatabase buildingDatabase;
-
-    private static GameManager instance;
-
-    public static GameManager Instance
+    public class GameManager : MonoBehaviour // example of a singleton GameManager
     {
-        get
+        [SerializeField] private BuildingDatabase buildingDatabase;
+
+        private static GameManager instance;
+
+        public static GameManager Instance
         {
-            if (instance == null)
+            get
             {
-                GameObject singleton = new(typeof(GameManager).Name);
-                instance = singleton.AddComponent<GameManager>();
+                if (instance == null)
+                {
+                    GameObject singleton = new(typeof(GameManager).Name);
+                    instance = singleton.AddComponent<GameManager>();
+                }
+                return instance;
             }
-            return instance;
         }
-    }
 
-    private void Awake()
-    {
-        if (instance != null && instance != this)
+        private void Awake()
         {
-            Destroy(gameObject);
-            return;
+            if (instance != null && instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-        instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
 
-    public void Initialize(BuildingPlacementModel buildingModel)
-    {
-        if (buildingModel != null)
+        public void Initialize(BuildingPlacementModel buildingModel)
         {
-            buildingModel.OnBuildingPlaced += OnBuildingPlaced;
-            buildingModel.OnBuildingUpgraded += OnBuildingUpgraded;
+            if (buildingModel != null)
+            {
+                buildingModel.OnBuildingPlaced += OnBuildingPlaced;
+                buildingModel.OnBuildingUpgraded += OnBuildingUpgraded;
+            }
         }
-    }
 
-    private void OnBuildingPlaced(BuildingData building)
-    {
-        Debug.Log($"Tower {building.type} placed at {building.position}");
-    }
+        private void OnBuildingPlaced(BuildingData building)
+        {
+            Debug.Log($"Tower {building.type} placed at {building.position}");
+        }
 
-    private void OnBuildingUpgraded(BuildingData building)
-    {
-        Debug.Log($"Tower upgraded to level {building.level}");
+        private void OnBuildingUpgraded(BuildingData building)
+        {
+            Debug.Log($"Tower upgraded to level {building.level}");
+        }
     }
 }
